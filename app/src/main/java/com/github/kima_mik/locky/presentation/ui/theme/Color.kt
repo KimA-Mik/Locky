@@ -1,4 +1,4 @@
-package com.github.kima_mik.locky.ui.theme
+package com.github.kima_mik.locky.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
