@@ -1,4 +1,4 @@
-package com.github.kima_mik.locky.di
+package com.github.kima_mik.locky.presentation.di
 
 import com.github.kima_mik.locky.presentation.screens.applicationsList.ApplicationsListScreenViewModel
 import org.koin.androidx.viewmodel.dsl.viewModelOf
