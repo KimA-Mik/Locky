@@ -21,20 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
+import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 
 @Composable
 fun ApplicationsListScreen(
     state: ApplicationsListScreenState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEvent: (AppListUserEvent) -> Unit
 ) {
     Scaffold(modifier = modifier) { innerPadding ->
         ApplicationsListScreenContent(
             state = state,
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
+                .fillMaxSize(),
+            onEvent = onEvent
         )
     }
 }
@@ -42,7 +45,8 @@ fun ApplicationsListScreen(
 @Composable
 fun ApplicationsListScreenContent(
     state: ApplicationsListScreenState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEvent: (AppListUserEvent) -> Unit
 ) {
     if (state.packages.isEmpty()) {
         Box(contentAlignment = Alignment.Center) {
@@ -53,12 +57,16 @@ fun ApplicationsListScreenContent(
             modifier = modifier,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(state.packages) {
+            items(items = state.packages,
+                key = { it.packageName }) {
                 ApplicationEntry(
                     entry = it,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    onSwitch = {
+                        onEvent(AppListUserEvent.ApplicationToggled(it))
+                    }
                 )
             }
         }
@@ -68,7 +76,8 @@ fun ApplicationsListScreenContent(
 @Composable
 fun ApplicationEntry(
     entry: AppEntry,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSwitch: () -> Unit
 ) {
     Row(
         modifier = modifier,
@@ -89,7 +98,7 @@ fun ApplicationEntry(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Switch(checked = entry.locked, onCheckedChange = {})
+        Switch(checked = entry.locked, onCheckedChange = { onSwitch() })
     }
 }
 
@@ -103,7 +112,8 @@ private fun ApplicationEntryPreview() {
                 packageName = "",
                 icon = ImmutableImageBitmap(null),
                 locked = true
-            )
+            ),
+            onSwitch = {}
         )
     }
 }
@@ -115,7 +125,8 @@ fun GreetingPreview() {
     LockyTheme {
         ApplicationsListScreenContent(
             state = ApplicationsListScreenState(),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            onEvent = {}
         )
     }
 }
