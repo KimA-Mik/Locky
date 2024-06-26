@@ -7,5 +7,6 @@ import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
 data class AppEntry(
     val name: String,
     val packageName: String,
-    val icon: ImmutableImageBitmap
+    val icon: ImmutableImageBitmap,
+    val locked: Boolean,
 )
