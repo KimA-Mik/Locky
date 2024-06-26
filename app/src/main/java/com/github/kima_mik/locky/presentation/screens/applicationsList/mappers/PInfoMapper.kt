@@ -10,6 +10,7 @@ fun PInfo.toAppEntry(): AppEntry {
     imageBitmap?.prepareToDraw()
     return AppEntry(
         name = appName,
+        packageName = packageName,
         icon = ImmutableImageBitmap(imageBitmap)
     )
 }
