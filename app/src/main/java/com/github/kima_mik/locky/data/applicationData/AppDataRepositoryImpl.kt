@@ -1,11 +1,9 @@
-package com.github.kima_mik.locky.presentation.android.dataStore.appData
+package com.github.kima_mik.locky.data.applicationData
 
-import android.content.Context
-import com.github.kima_mik.locky.data.applicationState.AppData
-import com.github.kima_mik.locky.data.applicationState.AppDataRepository
+import androidx.datastore.core.DataStore
+import com.github.kima_mik.locky.domain.applicationData.AppDataRepository
 
-class AppDataRepositoryImpl(context: Context) : AppDataRepository {
-    private val store = context.appDataStore
+class AppDataRepositoryImpl(private val store: DataStore<AppDataDto>) : AppDataRepository {
     override val data = store.data
 
     override suspend fun updateLocked(locked: Boolean) {
@@ -33,8 +31,8 @@ class AppDataRepositoryImpl(context: Context) : AppDataRepository {
     }
 
     private suspend fun updateData(
-        transform: suspend (AppData) -> AppData
-    ): AppData {
+        transform: suspend (AppDataDto) -> AppDataDto
+    ): AppDataDto {
         return store.updateData(transform)
     }
 }
