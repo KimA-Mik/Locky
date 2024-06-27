@@ -4,4 +4,9 @@ import androidx.compose.runtime.Immutable
 import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
 
 @Immutable
-data class AppEntry(val name: String, val icon: ImmutableImageBitmap)
+data class AppEntry(
+    val name: String,
+    val packageName: String,
+    val icon: ImmutableImageBitmap,
+    val locked: Boolean,
+)
