@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,6 +29,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
+import com.github.kima_mik.locky.presentation.elements.SimpleAlertDialog
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
@@ -41,6 +44,17 @@ fun ApplicationsListScreen(
     val scrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val sb = remember { scrollBehavior }
+
+    when {
+        state.showGrantPackageUsageStatsDialog ->
+            SimpleAlertDialog(
+                onConfirm = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
+                onDismiss = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
+                title = "Title",
+                text = "Text",
+                icon = Icons.Default.Warning
+            )
+    }
 
     Scaffold(modifier = modifier,
         topBar = {
