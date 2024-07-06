@@ -23,7 +23,7 @@ class ApplicationsListScreenViewModel(
     private val unlockPackage: UnlockPackageUseCase
 ) : ViewModel() {
     private val _outEvents = MutableStateFlow(ComposeEvent<AppListUiEvent>(null))
-    val outEvents = _outEvents.asStateFlow()
+    val uiEvents = _outEvents.asStateFlow()
 
     private val packages: Flow<List<AppEntry>> = subscribeToPackageEntries().map { packs ->
         packs.map {
@@ -61,6 +61,7 @@ class ApplicationsListScreenViewModel(
     }
 
     private fun onConfirmGrantPackageUsageStatsDialog() {
+        _outEvents.value = ComposeEvent(AppListUiEvent.RequirePackageUsageStats)
         showGrantPackageUsageStatsDialog.value = false
     }
 

@@ -23,8 +23,11 @@ fun NavGraphBuilder.mainGraph() = navigation(startDestination = "root", route = 
             }
         }
 
+        val uiEvents = viewModel.uiEvents.collectAsStateWithLifecycle()
+
         ApplicationsListScreen(
             state = state,
+            uiEvents = uiEvents,
             onEvent = onEvent
         )
     }

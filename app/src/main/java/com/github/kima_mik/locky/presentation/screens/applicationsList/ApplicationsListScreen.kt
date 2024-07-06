@@ -1,5 +1,7 @@
 package com.github.kima_mik.locky.presentation.screens.applicationsList
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,14 +24,21 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.kima_mik.locky.R
+import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
 import com.github.kima_mik.locky.presentation.elements.SimpleAlertDialog
+import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUiEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
@@ -39,20 +48,33 @@ import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 fun ApplicationsListScreen(
     state: ApplicationsListScreenState,
     modifier: Modifier = Modifier,
+    uiEvents: State<ComposeEvent<AppListUiEvent>>,
     onEvent: (AppListUserEvent) -> Unit
 ) {
     val scrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val sb = remember { scrollBehavior }
 
+    val uiEvent by uiEvents
+    uiEvent.consume {
+        when (it) {
+            AppListUiEvent.RequirePackageUsageStats ->
+                LocalContext.current.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        }
+    }
+
+
+
     when {
         state.showGrantPackageUsageStatsDialog ->
             SimpleAlertDialog(
                 onConfirm = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
-                onDismiss = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
-                title = "Title",
-                text = "Text",
-                icon = Icons.Default.Warning
+                onDismiss = { onEvent(AppListUserEvent.DismissGrantPackageUsageStatsDialog) },
+                title = stringResource(R.string.grant_package_usage_stats_dialog_title),
+                text = stringResource(R.string.grant_package_usage_stats_dialog_text),
+                icon = Icons.Default.Warning,
+                confirmText = stringResource(R.string.dialog_proceed_button_text),
+                dismissText = stringResource(R.string.dialog_dismiss_button_text)
             )
     }
 
