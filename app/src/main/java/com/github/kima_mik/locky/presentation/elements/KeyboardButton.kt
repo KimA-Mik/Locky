@@ -68,7 +68,7 @@ fun TextKeyboardButton(
             modifier = Modifier,
             textAlign = TextAlign.Center,
             color = colors.contentColor,
-            style = MaterialTheme.typography.displayLarge
+            style = MaterialTheme.typography.displayMedium
         )
     }
 
