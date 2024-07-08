@@ -1,3 +1,9 @@
+<!DOCTYPE resources [<!ENTITY appname "Locky">]>
+
 <resources>
-    <string name="app_name">Locky</string>
+    <string name="app_name">&appname;</string>
+    <string name="grant_package_usage_stats_dialog_title">Permission required</string>
+    <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to work.</string>
+    <string name="dialog_proceed_button_text">Proceed</string>
+    <string name="dialog_dismiss_button_text">Dismiss</string>
 </resources>

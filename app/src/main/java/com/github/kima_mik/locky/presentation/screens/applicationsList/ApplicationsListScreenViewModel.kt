@@ -5,11 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
+import com.github.kima_mik.locky.presentation.common.ComposeEvent
+import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUiEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.mappers.toAppEntry
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -19,23 +22,30 @@ class ApplicationsListScreenViewModel(
     private val lockPackage: LockPackageUseCase,
     private val unlockPackage: UnlockPackageUseCase
 ) : ViewModel() {
+    private val _outEvents = MutableStateFlow(ComposeEvent<AppListUiEvent>(null))
+    val uiEvents = _outEvents.asStateFlow()
+
     private val packages: Flow<List<AppEntry>> = subscribeToPackageEntries().map { packs ->
         packs.map {
             it.toAppEntry()
         }
     }
-    private val temp = MutableStateFlow("")
-
+    private val showGrantPackageUsageStatsDialog = MutableStateFlow(false)
     val state = combine(
         packages,
-        temp
-    ) { packages, temp ->
-        ApplicationsListScreenState(packages)
+        showGrantPackageUsageStatsDialog
+    ) { packages, showGrantPackageUsageStatsDialog ->
+        ApplicationsListScreenState(
+            packages = packages,
+            showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog
+        )
     }
 
     fun onEvent(event: AppListUserEvent) {
         when (event) {
             is AppListUserEvent.ApplicationToggled -> onApplicationToggled(event.entry)
+            AppListUserEvent.ConfirmGrantPackageUsageStatsDialog -> onConfirmGrantPackageUsageStatsDialog()
+            AppListUserEvent.DismissGrantPackageUsageStatsDialog -> onDismissGrantPackageUsageStatsDialog()
         }
     }
 
@@ -43,7 +53,19 @@ class ApplicationsListScreenViewModel(
         if (entry.locked) {
             unlockPackage(entry.packageName)
         } else {
-            lockPackage(entry.packageName)
+            val res=lockPackage(entry.packageName)
+            if (res == LockPackageUseCase.Result.NoPermission) {
+                showGrantPackageUsageStatsDialog.value = true
+            }
         }
+    }
+
+    private fun onConfirmGrantPackageUsageStatsDialog() {
+        _outEvents.value = ComposeEvent(AppListUiEvent.RequirePackageUsageStats)
+        showGrantPackageUsageStatsDialog.value = false
+    }
+
+    private fun onDismissGrantPackageUsageStatsDialog() {
+        showGrantPackageUsageStatsDialog.value = false
     }
 }
