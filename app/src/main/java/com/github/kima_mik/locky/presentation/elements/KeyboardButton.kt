@@ -1,22 +1,17 @@
 package com.github.kima_mik.locky.presentation.elements
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -29,42 +24,50 @@ import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 fun KeyboardButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primary,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     shape: Shape = CircleShape,
     content: @Composable () -> Unit
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .aspectRatio(1f)
-            .background(color = color, shape = shape)
-            .clickable(onClick = onClick)
+
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = shape,
+        colors = colors
     ) {
         content()
     }
+
+//    Box(
+//        contentAlignment = Alignment.Center,
+//        modifier = modifier
+//            .aspectRatio(1f)
+//            .background(color = color, shape = shape)
+//            .clickable(onClick = onClick)
+//    ) {
+//        content()
+//    }
 }
 
 @Composable
 fun TextKeyboardButton(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primary,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     shape: Shape = CircleShape,
     onClick: () -> Unit
 ) {
     KeyboardButton(
         onClick = onClick,
         modifier = modifier,
-        color = color,
-        shape = shape
+        shape = shape,
+        colors = colors
     ) {
         Text(
             text = text,
-            modifier = Modifier
-                .takeTwoThirds()
-                .wrapContentHeight(),
-            color = MaterialTheme.colorScheme.contentColorFor(color),
+            modifier = Modifier,
             textAlign = TextAlign.Center,
+            color = colors.contentColor,
             style = MaterialTheme.typography.displayLarge
         )
     }
@@ -75,7 +78,7 @@ fun TextKeyboardButton(
 fun IconKeyboardButton(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colorScheme.primary,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
     shape: Shape = CircleShape,
     contendDescription: String? = null,
     onClick: () -> Unit
@@ -83,15 +86,14 @@ fun IconKeyboardButton(
     KeyboardButton(
         onClick = onClick,
         modifier = modifier,
-        color = color,
+        colors = colors,
         shape = shape
     ) {
         Image(
             imageVector = imageVector,
             contentDescription = contendDescription,
-            modifier = Modifier
-                .takeTwoThirds(),
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.contentColorFor(color))
+            modifier = Modifier,
+            colorFilter = ColorFilter.tint(colors.contentColor)
         )
     }
 }
