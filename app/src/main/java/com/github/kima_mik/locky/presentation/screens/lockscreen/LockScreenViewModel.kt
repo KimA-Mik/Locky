@@ -1,22 +1,41 @@
 package com.github.kima_mik.locky.presentation.screens.lockscreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
 import com.github.kima_mik.locky.presentation.elements.keyboard.KeyboardEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class LockScreenViewModel : ViewModel() {
+class LockScreenViewModel(
+    appData: GetAppDataUseCase
+) : ViewModel() {
     private val hideInput = MutableStateFlow(false)
     private val symbols = MutableStateFlow(List<String?>(4) { null })
+    private val flowState = MutableStateFlow(LockScreenFlow.LAUNCH)
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            val data = appData().first()
+            if (data.password.isEmpty()) {
+                flowState.value = LockScreenFlow.FIRST_LAUNCH
+            }
+        }
+    }
 
     val state = combine(
         hideInput,
-        symbols
-    ) { hideInput, symbols ->
+        symbols,
+        flowState
+    ) { hideInput, symbols, flowState ->
         LockScreenState(
             hideInput = hideInput,
-            symbols = symbols
+            symbols = symbols,
+            flowState = flowState
         )
     }
 
