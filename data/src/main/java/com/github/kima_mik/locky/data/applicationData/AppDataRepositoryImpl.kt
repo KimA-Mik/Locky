@@ -1,14 +1,18 @@
 package com.github.kima_mik.locky.data.applicationData
 
-import androidx.datastore.core.DataStore
 import com.github.kima_mik.locky.domain.applicationData.AppDataRepository
 import kotlinx.coroutines.flow.map
 
-class AppDataRepositoryImpl(private val store: DataStore<AppDataDto>) : AppDataRepository {
-    override val data = store.data.map { it.toAppData() }
+
+typealias AppDataTransform = suspend (AppDataDto) -> AppDataDto
+
+class AppDataRepositoryImpl(
+    private val wrapper: AppDataWrapper,
+) : AppDataRepository {
+    override val data = wrapper.dtoData.map { it.toAppData() }
 
     override suspend fun updateLocked(locked: Boolean) {
-        updateData {
+        update {
             it.copy(
                 locked = locked
             )
@@ -16,7 +20,7 @@ class AppDataRepositoryImpl(private val store: DataStore<AppDataDto>) : AppDataR
     }
 
     override suspend fun updatePassword(password: List<Char>) {
-        updateData {
+        update {
             it.copy(
                 password = password
             )
@@ -24,16 +28,14 @@ class AppDataRepositoryImpl(private val store: DataStore<AppDataDto>) : AppDataR
     }
 
     override suspend fun updateLockedPackages(lockedPackages: List<String>) {
-        updateData {
+        update {
             it.copy(
                 lockedPackages = lockedPackages
             )
         }
     }
 
-    private suspend fun updateData(
-        transform: suspend (AppDataDto) -> AppDataDto
-    ): AppDataDto {
-        return store.updateData(transform)
+    private suspend fun update(transform: AppDataTransform) {
+        wrapper.update(transform)
     }
 }

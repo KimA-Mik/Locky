@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrains.kotlin.android)
-    alias(libs.plugins.serialization)
 }
 
 android {
@@ -65,8 +64,9 @@ dependencies {
     implementation(libs.androidx.material3.window.size.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.kotlinx.serialization.protobuf)
-    implementation(project(":domain"))
     implementation(project(":common"))
+    implementation(project(":data"))
+    implementation(project(":domain"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

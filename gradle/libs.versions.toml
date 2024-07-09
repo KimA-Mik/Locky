@@ -9,6 +9,7 @@ junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 activityCompose = "1.9.0"
 composeBom = "2024.06.00"
+kotlinxCoroutines = "1.8.1"
 kotlinxSerialization = "1.6.3"
 navigation = "2.7.7"
 
@@ -33,6 +34,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-material3-icons-extended-android = { module = "androidx.compose.material:material-icons-extended-android" }
 androidx-material3-window-size-android = { group = "androidx.compose.material3", name = "material3-window-size-class-android" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-protobuf = { module = "org.jetbrains.kotlinx:kotlinx-serialization-protobuf", version.ref = "kotlinxSerialization" }
 
 [plugins]

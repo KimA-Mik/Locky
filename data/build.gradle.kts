@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.serialization)
 }
 
 android {
-    namespace = "com.github.kima_mik.locky.common"
+    namespace = "com.github.kima_mik.locky.data"
     compileSdk = 34
 
     defaultConfig {
@@ -36,6 +37,10 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.protobuf)
+    implementation(project(":common"))
+    implementation(project(":domain"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
