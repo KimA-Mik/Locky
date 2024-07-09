@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -31,7 +32,9 @@ fun LockScreen(
     modifier: Modifier = Modifier,
     onEvent: OnLockScreenEvent
 ) {
-    Scaffold { paddingValues ->
+    Scaffold(
+        modifier = modifier
+    ) { paddingValues ->
         LockScreenContent(
             state = state,
             modifier = Modifier
@@ -54,7 +57,12 @@ fun LockScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceAround
     ) {
-        Header(state.flowState, modifier = Modifier.padding(16.dp))
+        Header(
+            state.flowState,
+            modifier = Modifier
+                .paddingFromBaseline(bottom = 16.dp, top = 32.dp)
+                .padding(horizontal = 16.dp)
+        )
         InputPad(state.symbols)
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(buttonShape = MaterialTheme.shapes.extraLarge) {
