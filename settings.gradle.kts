@@ -21,4 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Locky"
 include(":app")
- 
+include(":common")
+include(":data")
+include(":domain")
