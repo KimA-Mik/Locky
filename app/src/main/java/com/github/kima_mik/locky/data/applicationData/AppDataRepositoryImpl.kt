@@ -2,9 +2,10 @@ package com.github.kima_mik.locky.data.applicationData
 
 import androidx.datastore.core.DataStore
 import com.github.kima_mik.locky.domain.applicationData.AppDataRepository
+import kotlinx.coroutines.flow.map
 
 class AppDataRepositoryImpl(private val store: DataStore<AppDataDto>) : AppDataRepository {
-    override val data = store.data
+    override val data = store.data.map { it.toAppData() }
 
     override suspend fun updateLocked(locked: Boolean) {
         updateData {

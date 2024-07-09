@@ -1,4 +1,4 @@
-package com.github.kima_mik.locky.common.util
+package com.github.kima_mik.locky.common
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

@@ -1,8 +1,8 @@
 package com.github.kima_mik.locky.domain.packages.useCase
 
-import com.github.kima_mik.locky.common.util.distinctLatest
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
 import com.github.kima_mik.locky.domain.packages.model.PackageEntry
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -15,7 +15,7 @@ class SubscribeToPackageEntriesUseCase(
 
         getAppData()
             .map { it.lockedPackages }
-            .distinctLatest()
+            .distinctUntilChanged()
             .map { it.toSet() }
             .collect { lockedPackages ->
                 val updated = packages.map { pack ->

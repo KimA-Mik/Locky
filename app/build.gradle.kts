@@ -65,6 +65,8 @@ dependencies {
     implementation(libs.androidx.material3.window.size.android)
     implementation(libs.koin.androidx.compose)
     implementation(libs.kotlinx.serialization.protobuf)
+    implementation(project(":domain"))
+    implementation(project(":common"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
