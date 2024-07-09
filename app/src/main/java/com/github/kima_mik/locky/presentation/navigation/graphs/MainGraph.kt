@@ -10,10 +10,31 @@ import com.github.kima_mik.locky.presentation.screens.applicationsList.Applicati
 import com.github.kima_mik.locky.presentation.screens.applicationsList.ApplicationsListScreenState
 import com.github.kima_mik.locky.presentation.screens.applicationsList.ApplicationsListScreenViewModel
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
+import com.github.kima_mik.locky.presentation.screens.lockscreen.LockScreen
+import com.github.kima_mik.locky.presentation.screens.lockscreen.LockScreenState
+import com.github.kima_mik.locky.presentation.screens.lockscreen.LockScreenViewModel
+import com.github.kima_mik.locky.presentation.screens.lockscreen.event.OnLockScreenEvent
 import org.koin.androidx.compose.koinViewModel
 
-fun NavGraphBuilder.mainGraph() = navigation(startDestination = "root", route = "main") {
-    composable("root") {
+private const val MAIN_GRAPH_ROUTE = "main"
+private const val LOCK_ROUTE = "lock"
+private const val APP_LIST_ROUTE = "app_list"
+
+fun NavGraphBuilder.mainGraph() =
+    navigation(startDestination = LOCK_ROUTE, route = MAIN_GRAPH_ROUTE) {
+        composable(LOCK_ROUTE) {
+            val viewModel: LockScreenViewModel = koinViewModel()
+            val state by viewModel.state.collectAsStateWithLifecycle(initialValue = LockScreenState())
+            val onEvent = remember<OnLockScreenEvent> {
+                {
+                    viewModel.onEvent(it)
+                }
+            }
+
+            LockScreen(state = state, onEvent = onEvent)
+        }
+
+        composable(APP_LIST_ROUTE) {
         val viewModel: ApplicationsListScreenViewModel = koinViewModel()
         val state by
         viewModel.state.collectAsStateWithLifecycle(initialValue = ApplicationsListScreenState())
