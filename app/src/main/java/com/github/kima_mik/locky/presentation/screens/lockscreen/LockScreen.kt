@@ -1,12 +1,16 @@
 package com.github.kima_mik.locky.presentation.screens.lockscreen
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.shape.CornerSize
@@ -27,9 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.github.kima_mik.locky.R
 import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
 import com.github.kima_mik.locky.presentation.common.ComposeEvent
@@ -39,36 +43,10 @@ import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScree
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.OnLockScreenEvent
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun LockScreen(
-    state: LockScreenState,
-    snackbarHostState: SnackbarHostState,
-    navController: NavController,
-    uiEvent: ComposeEvent<LockScreenUiEvent>,
-    modifier: Modifier = Modifier,
-    onEvent: OnLockScreenEvent
-) {
-    Scaffold(
-        modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        LockScreenContent(
-            state = state,
-            snackbarHostState = snackbarHostState,
-            navController = navController,
-            uiEvent = uiEvent,
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(16.dp),
-            onEvent = onEvent
-        )
-    }
-}
-
-@Composable
-fun LockScreenContent(
     state: LockScreenState,
     snackbarHostState: SnackbarHostState,
     navController: NavController,
@@ -106,11 +84,51 @@ fun LockScreenContent(
         snackbarMessage = null
     }
 
+    var xOffset by remember { mutableStateOf(0.dp) }
+    val errorOffset by animateDpAsState(
+        targetValue = xOffset,
+        animationSpec = SpringSpec(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessMedium
+        ),
+        label = "label"
+    )
+
     LaunchedEffect(wrongCodeTrigger) {
         if (wrongCodeTrigger == 0L) return@LaunchedEffect
 
+        var sign = -1
+        repeat(4) {
+            xOffset = 15.dp * sign
+            sign = -sign
+            delay(32L)
+        }
+        xOffset = 0.dp
     }
 
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { paddingValues ->
+        LockScreenContent(
+            state = state,
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp),
+            digitsOffset = errorOffset,
+            onEvent = onEvent
+        )
+    }
+}
+
+@Composable
+fun LockScreenContent(
+    state: LockScreenState,
+    digitsOffset: Dp,
+    modifier: Modifier = Modifier,
+    onEvent: OnLockScreenEvent
+) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -122,7 +140,10 @@ fun LockScreenContent(
                 .paddingFromBaseline(bottom = 16.dp, top = 32.dp)
                 .padding(horizontal = 16.dp)
         )
-        InputPad(state.symbols)
+        InputPad(
+            symbols = state.symbols,
+            digitsOffset = digitsOffset
+        )
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(buttonShape = MaterialTheme.shapes.extraLarge) {
             onEvent(LockScreenUserEvent.KeyboardPress(it))
@@ -174,6 +195,7 @@ fun Header(
 @Composable
 fun InputPad(
     symbols: List<String?>,
+    digitsOffset: Dp,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -186,7 +208,8 @@ fun InputPad(
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .offset(digitsOffset, 0.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -231,9 +254,7 @@ private fun LockScreenContentPreview() {
                 state = LockScreenState(
                     symbols = List<String?>(4) { it.toString() }
                 ),
-                uiEvent = ComposeEvent(null),
-                snackbarHostState = SnackbarHostState(),
-                navController = rememberNavController(),
+                digitsOffset = 0.dp,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
