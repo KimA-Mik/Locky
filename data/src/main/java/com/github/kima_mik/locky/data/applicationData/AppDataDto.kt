@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AppDataDto(
     val locked: Boolean = false,
-    val password: List<Char> = emptyList(),
+    val password: List<String> = emptyList(),
     val lockedPackages: List<String> = emptyList()
 ) {
     fun toAppData(): AppData {

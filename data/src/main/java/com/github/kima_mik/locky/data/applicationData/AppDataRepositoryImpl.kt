@@ -20,7 +20,7 @@ class AppDataRepositoryImpl(
         }
     }
 
-    override suspend fun updatePassword(password: List<Char>) {
+    override suspend fun updatePassword(password: List<String>) {
         update {
             it.copy(
                 password = password
