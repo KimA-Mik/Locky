@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
 import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
+import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
+import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
 import com.github.kima_mik.locky.presentation.elements.keyboard.KeyboardEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +15,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LockScreenViewModel(
-    appData: GetAppDataUseCase
+    appData: GetAppDataUseCase,
+    private val confirmNewCode: ConfirmNewCodeUseCase,
+    private val setNewCode: SetNewCodeUseCase
 ) : ViewModel() {
     private val hideInput = MutableStateFlow(false)
     private val symbols = MutableStateFlow(List<String?>(DEFAULT_CODE_LENGTH) { null })

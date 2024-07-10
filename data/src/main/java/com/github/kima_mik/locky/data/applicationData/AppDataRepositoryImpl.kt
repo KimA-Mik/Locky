@@ -10,6 +10,7 @@ class AppDataRepositoryImpl(
     private val wrapper: AppDataWrapper,
 ) : AppDataRepository {
     override val data = wrapper.dtoData.map { it.toAppData() }
+    private var _buffer: List<String>? = null
 
     override suspend fun updateLocked(locked: Boolean) {
         update {
@@ -33,6 +34,14 @@ class AppDataRepositoryImpl(
                 lockedPackages = lockedPackages
             )
         }
+    }
+
+    override fun setTemporalBuffer(buffer: List<String>) {
+        _buffer = buffer
+    }
+
+    override fun checkTemporalBuffer(buffer: List<String>): Boolean {
+        return _buffer == buffer
     }
 
     private suspend fun update(transform: AppDataTransform) {

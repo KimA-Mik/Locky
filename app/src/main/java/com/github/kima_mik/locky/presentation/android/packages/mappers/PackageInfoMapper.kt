@@ -13,8 +13,6 @@ fun PackageInfo.toPInfo(pm: PackageManager): PInfo {
         versionCode.toLong()
     }
 
-    this.applicationInfo.icon
-
     return PInfo(
         appName = applicationInfo.loadLabel(pm).toString(),
         packageName = packageName,

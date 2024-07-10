@@ -8,4 +8,6 @@ interface AppDataRepository {
     suspend fun updateLocked(locked: Boolean)
     suspend fun updatePassword(password: List<Char>)
     suspend fun updateLockedPackages(lockedPackages: List<String>)
+    fun setTemporalBuffer(buffer: List<String>)
+    fun checkTemporalBuffer(buffer: List<String>): Boolean
 }

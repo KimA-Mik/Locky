@@ -2,6 +2,8 @@ package com.github.kima_mik.locky.presentation.di
 
 import com.github.kima_mik.locky.LockyApplication
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
+import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
+import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
 import com.github.kima_mik.locky.domain.packages.dataSource.PackageDataSource
 import com.github.kima_mik.locky.domain.packages.useCase.GetInstalledPackagesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
@@ -27,4 +29,7 @@ fun domain() = module {
     singleOf(::LockPackageUseCase)
     singleOf(::SubscribeToPackageEntriesUseCase)
     singleOf(::UnlockPackageUseCase)
+
+    singleOf(::ConfirmNewCodeUseCase)
+    singleOf(::SetNewCodeUseCase)
 }
