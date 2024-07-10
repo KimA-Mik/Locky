@@ -45,6 +45,8 @@ import com.github.kima_mik.locky.presentation.screens.lockscreen.event.OnLockScr
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 import kotlinx.coroutines.delay
 
+private const val HIDDEN_PASS_SYMBOL = "⋆"
+
 @Composable
 fun LockScreen(
     state: LockScreenState,
@@ -142,7 +144,8 @@ fun LockScreenContent(
         )
         InputPad(
             symbols = state.symbols,
-            digitsOffset = digitsOffset
+            digitsOffset = digitsOffset,
+            hidden = state.flowState == LockScreenFlow.LAUNCH || state.flowState == LockScreenFlow.LOCK
         )
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(buttonShape = MaterialTheme.shapes.extraLarge) {
@@ -196,6 +199,7 @@ fun Header(
 fun InputPad(
     symbols: List<String?>,
     digitsOffset: Dp,
+    hidden: Boolean,
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -214,7 +218,10 @@ fun InputPad(
             verticalAlignment = Alignment.CenterVertically
         ) {
             symbols.forEach {
-                PadField(it = it)
+                PadField(
+                    it = it,
+                    hidden = hidden
+                )
             }
         }
     }
@@ -238,7 +245,7 @@ fun PadField(
             )
         } else {
             Text(
-                text = it,
+                text = if (hidden) HIDDEN_PASS_SYMBOL else it,
                 style = MaterialTheme.typography.displayMedium
             )
         }

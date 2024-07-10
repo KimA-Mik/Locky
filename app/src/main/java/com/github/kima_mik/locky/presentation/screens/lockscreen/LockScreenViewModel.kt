@@ -24,7 +24,6 @@ class LockScreenViewModel(
     private val confirmNewCode: ConfirmNewCodeUseCase,
     private val setNewCode: SetNewCodeUseCase
 ) : ViewModel() {
-    private val hideInput = MutableStateFlow(false)
     private val symbols = MutableStateFlow(EMPTY_CODE)
     private val flowState = MutableStateFlow(LockScreenFlow.LAUNCH)
 
@@ -38,12 +37,10 @@ class LockScreenViewModel(
     }
 
     val state = combine(
-        hideInput,
         symbols,
         flowState
-    ) { hideInput, symbols, flowState ->
+    ) { symbols, flowState ->
         LockScreenState(
-            hideInput = hideInput,
             symbols = symbols,
             flowState = flowState
         )
