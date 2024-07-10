@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 
 class ComposeEvent<T>(private val data: T?) {
+    private val time = System.currentTimeMillis()
     private var consumed: Boolean = false
 
     @SuppressLint("ComposableNaming")
@@ -11,7 +12,7 @@ class ComposeEvent<T>(private val data: T?) {
     fun consume(consumer: @Composable (T) -> Unit) {
         if (!consumed) {
             consumed = true
-            data?.let { consumer(it)}
+            data?.let { consumer(it) }
         }
     }
 
@@ -22,6 +23,7 @@ class ComposeEvent<T>(private val data: T?) {
         other as ComposeEvent<*>
 
         if (consumed != other.consumed) return false
+        if (time != other.time) return false
         if (data != other.data) return false
 
         return data == other.data
@@ -29,6 +31,7 @@ class ComposeEvent<T>(private val data: T?) {
 
     override fun hashCode(): Int {
         var result = consumed.hashCode()
+        result = 31 * result + time.hashCode()
         result = 31 * result + data.hashCode()
 
         return result

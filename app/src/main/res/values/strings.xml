@@ -2,12 +2,20 @@
 
 <resources>
     <string name="app_name">&appname;</string>
-    <string name="grant_package_usage_stats_dialog_title">Permission required</string>
-    <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to work.</string>
+
+    <!--  Common  -->
     <string name="dialog_proceed_button_text">Proceed</string>
     <string name="dialog_dismiss_button_text">Dismiss</string>
+
+    <!--  AppsListScreen  -->
+    <string name="grant_package_usage_stats_dialog_title">Permission required</string>
+    <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to work.</string>
+
+    <!--  LockScreen  -->
     <string name="first_launch_code_header">Let\'s create a pin-code</string>
     <string name="launch_code_header">Enter the pin-code</string>
     <string name="repeat_code_header">Repeat the pin-code</string>
     <string name="unlock_code_header">Enter the pin code to unlock</string>
+    <string name="codes_are_not_equal_snackbar_message">Codes are not equal</string>
+    <string name="short_code_snackbar_message">The should be ta least %1$s characters long</string>
 </resources>

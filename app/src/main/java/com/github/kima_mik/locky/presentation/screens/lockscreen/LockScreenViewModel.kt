@@ -6,10 +6,13 @@ import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCas
 import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
 import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
 import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
+import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.elements.keyboard.KeyboardEvent
+import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUiEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -44,6 +47,9 @@ class LockScreenViewModel(
         )
     }
 
+    private val _uiEvents = MutableStateFlow(ComposeEvent<LockScreenUiEvent>(null))
+    val uiEvents = _uiEvents.asStateFlow()
+
     private var cursor = 0
 
     fun onEvent(event: LockScreenUserEvent) {
@@ -55,7 +61,7 @@ class LockScreenViewModel(
     private fun onKeyboardPress(event: KeyboardEvent) {
         when (event) {
             KeyboardEvent.Backspace -> deleteSymbol()
-            KeyboardEvent.Enter -> {}
+            KeyboardEvent.Enter -> handleEnter()
             is KeyboardEvent.Number -> enterSymbol(event.code.toString())
         }
     }
@@ -68,6 +74,36 @@ class LockScreenViewModel(
         updateSymbols(cursor, symbol)
         cursor += 1
     }
+
+    private fun handleEnter() {
+        when (flowState.value) {
+            LockScreenFlow.FIRST_LAUNCH -> firstLaunchEnter()
+            LockScreenFlow.LAUNCH -> TODO()
+            LockScreenFlow.SECOND_PASSWORD_CHECK -> secondPasswordCheckEnter()
+            LockScreenFlow.LOCK -> TODO()
+        }
+    }
+
+    private fun firstLaunchEnter() {
+        when (setNewCode(symbols.value.filterNotNull())) {
+            SetNewCodeUseCase.Result.SUCCESS -> flowState.value =
+                LockScreenFlow.SECOND_PASSWORD_CHECK
+
+            SetNewCodeUseCase.Result.TOO_SHORT -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.ShortCode)
+        }
+    }
+
+    private fun secondPasswordCheckEnter() = viewModelScope.launch {
+        when (confirmNewCode(symbols.value.filterNotNull())) {
+            ConfirmNewCodeUseCase.Result.SUCCESS -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.EnterApp)
+
+            ConfirmNewCodeUseCase.Result.CODES_NOT_EQUAL -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.CodesNotEqual)
+        }
+    }
+
 
     private fun deleteSymbol() {
         cursor = (cursor - 1).coerceAtLeast(0)
