@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
 import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
+import com.github.kima_mik.locky.domain.code.useCase.CheckCodeUseCase
 import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
 import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
 import com.github.kima_mik.locky.presentation.common.ComposeEvent
@@ -19,11 +20,12 @@ import kotlinx.coroutines.launch
 
 class LockScreenViewModel(
     appData: GetAppDataUseCase,
+    private val checkCode: CheckCodeUseCase,
     private val confirmNewCode: ConfirmNewCodeUseCase,
     private val setNewCode: SetNewCodeUseCase
 ) : ViewModel() {
     private val hideInput = MutableStateFlow(false)
-    private val symbols = MutableStateFlow(List<String?>(DEFAULT_CODE_LENGTH) { null })
+    private val symbols = MutableStateFlow(EMPTY_CODE)
     private val flowState = MutableStateFlow(LockScreenFlow.LAUNCH)
 
     init {
@@ -78,7 +80,7 @@ class LockScreenViewModel(
     private fun handleEnter() {
         when (flowState.value) {
             LockScreenFlow.FIRST_LAUNCH -> firstLaunchEnter()
-            LockScreenFlow.LAUNCH -> TODO()
+            LockScreenFlow.LAUNCH -> launchEnter()
             LockScreenFlow.SECOND_PASSWORD_CHECK -> secondPasswordCheckEnter()
             LockScreenFlow.LOCK -> TODO()
         }
@@ -86,11 +88,24 @@ class LockScreenViewModel(
 
     private fun firstLaunchEnter() {
         when (setNewCode(symbols.value.filterNotNull())) {
-            SetNewCodeUseCase.Result.SUCCESS -> flowState.value =
-                LockScreenFlow.SECOND_PASSWORD_CHECK
+            SetNewCodeUseCase.Result.SUCCESS -> {
+                symbols.value = EMPTY_CODE
+                cursor = 0
+                flowState.value = LockScreenFlow.SECOND_PASSWORD_CHECK
+            }
 
             SetNewCodeUseCase.Result.TOO_SHORT -> _uiEvents.value =
                 ComposeEvent(LockScreenUiEvent.ShortCode)
+        }
+    }
+
+    private fun launchEnter() = viewModelScope.launch {
+        when (checkCode(symbols.value.filterNotNull())) {
+            CheckCodeUseCase.Result.SUCCESS -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.EnterApp)
+
+            CheckCodeUseCase.Result.WRONG_CODE -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.WrongCode)
         }
     }
 
@@ -116,5 +131,9 @@ class LockScreenViewModel(
         val list = symbols.value.toMutableList()
         list[index] = value
         symbols.value = list
+    }
+
+    companion object {
+        private val EMPTY_CODE = List<String?>(DEFAULT_CODE_LENGTH) { null }
     }
 }

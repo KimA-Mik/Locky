@@ -5,4 +5,5 @@ sealed interface LockScreenUiEvent {
     data object CodesNotEqual : LockScreenUiEvent
     data object Unlock : LockScreenUiEvent
     data object EnterApp : LockScreenUiEvent
+    data object WrongCode : LockScreenUiEvent
 }

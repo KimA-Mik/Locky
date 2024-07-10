@@ -18,4 +18,5 @@
     <string name="unlock_code_header">Enter the pin code to unlock</string>
     <string name="codes_are_not_equal_snackbar_message">Codes are not equal</string>
     <string name="short_code_snackbar_message">The should be ta least %1$s characters long</string>
+    <string name="wrong_code_snackbar_message">Wrong code</string>
 </resources>

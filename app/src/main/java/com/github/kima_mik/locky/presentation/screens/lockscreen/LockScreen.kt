@@ -28,10 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.github.kima_mik.locky.R
 import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
 import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.elements.keyboard.Keyboard
+import com.github.kima_mik.locky.presentation.navigation.graphs.enterApp
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUiEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.OnLockScreenEvent
@@ -41,6 +44,7 @@ import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 fun LockScreen(
     state: LockScreenState,
     snackbarHostState: SnackbarHostState,
+    navController: NavController,
     uiEvent: ComposeEvent<LockScreenUiEvent>,
     modifier: Modifier = Modifier,
     onEvent: OnLockScreenEvent
@@ -52,6 +56,7 @@ fun LockScreen(
         LockScreenContent(
             state = state,
             snackbarHostState = snackbarHostState,
+            navController = navController,
             uiEvent = uiEvent,
             modifier = Modifier
                 .padding(paddingValues)
@@ -66,6 +71,7 @@ fun LockScreen(
 fun LockScreenContent(
     state: LockScreenState,
     snackbarHostState: SnackbarHostState,
+    navController: NavController,
     uiEvent: ComposeEvent<LockScreenUiEvent>,
     modifier: Modifier = Modifier,
     onEvent: OnLockScreenEvent
@@ -86,7 +92,11 @@ fun LockScreenContent(
             }
 
             LockScreenUiEvent.Unlock -> TODO()
-            LockScreenUiEvent.EnterApp -> TODO()
+            LockScreenUiEvent.EnterApp -> navController.enterApp()
+            LockScreenUiEvent.WrongCode -> {
+                wrongCodeTrigger = System.currentTimeMillis()
+                snackbarMessage = stringResource(R.string.wrong_code_snackbar_message)
+            }
         }
     }
 
@@ -223,6 +233,7 @@ private fun LockScreenContentPreview() {
                 ),
                 uiEvent = ComposeEvent(null),
                 snackbarHostState = SnackbarHostState(),
+                navController = rememberNavController(),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),

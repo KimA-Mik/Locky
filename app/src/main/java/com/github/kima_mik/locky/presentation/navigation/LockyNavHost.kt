@@ -12,5 +12,8 @@ fun LockyNavHost(
     snackbarHostState: SnackbarHostState
 ) =
     NavHost(navHostController, startDestination = "main") {
-        mainGraph(snackbarHostState = snackbarHostState)
+        mainGraph(
+            navController = navHostController,
+            snackbarHostState = snackbarHostState
+        )
     }

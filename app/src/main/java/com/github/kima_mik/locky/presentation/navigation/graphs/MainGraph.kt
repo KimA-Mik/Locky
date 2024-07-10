@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -21,7 +22,10 @@ private const val MAIN_GRAPH_ROUTE = "main"
 private const val LOCK_ROUTE = "lock"
 private const val APP_LIST_ROUTE = "app_list"
 
-fun NavGraphBuilder.mainGraph(snackbarHostState: SnackbarHostState) =
+fun NavGraphBuilder.mainGraph(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState
+) =
     navigation(startDestination = LOCK_ROUTE, route = MAIN_GRAPH_ROUTE) {
         composable(LOCK_ROUTE) {
             val viewModel: LockScreenViewModel = koinViewModel()
@@ -36,6 +40,7 @@ fun NavGraphBuilder.mainGraph(snackbarHostState: SnackbarHostState) =
             LockScreen(
                 state = state,
                 snackbarHostState = snackbarHostState,
+                navController = navController,
                 uiEvent = uiEvent,
                 onEvent = onEvent
             )
@@ -60,3 +65,10 @@ fun NavGraphBuilder.mainGraph(snackbarHostState: SnackbarHostState) =
             )
         }
     }
+
+fun NavController.enterApp() {
+    this.popBackStack()
+    this.navigate(APP_LIST_ROUTE) {
+        launchSingleTop = true
+    }
+}
