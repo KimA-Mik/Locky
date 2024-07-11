@@ -1,6 +1,7 @@
 package com.github.kima_mik.locky.presentation.screens.applicationsList
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -59,7 +60,12 @@ fun ApplicationsListScreen(
     uiEvent.consume {
         when (it) {
             AppListUiEvent.RequirePackageUsageStats ->
-                LocalContext.current.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+                LocalContext.current.startActivity(
+                    Intent(
+                        Settings.ACTION_USAGE_ACCESS_SETTINGS,
+                        Uri.parse("package:${LocalContext.current.packageName}")
+                    )
+                )
         }
     }
 
