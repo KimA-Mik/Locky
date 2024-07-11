@@ -2,13 +2,13 @@ package com.github.kima_mik.locky.domain.packages.useCase
 
 import com.github.kima_mik.locky.domain.applicationData.AppDataRepository
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
-import com.github.kima_mik.locky.domain.permissions.PackagePermissionChecker
+import com.github.kima_mik.locky.domain.permissions.PermissionChecker
 import kotlinx.coroutines.flow.first
 
 class LockPackageUseCase(
     private val getAppData: GetAppDataUseCase,
     private val repository: AppDataRepository,
-    private val checker: PackagePermissionChecker,
+    private val checker: PermissionChecker,
 ) {
     private var permissionGranted = false
 

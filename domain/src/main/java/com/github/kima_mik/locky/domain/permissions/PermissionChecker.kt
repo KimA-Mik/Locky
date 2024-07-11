@@ -1,5 +1,5 @@
 package com.github.kima_mik.locky.domain.permissions
 
-interface PackagePermissionChecker {
+interface PermissionChecker {
     fun isPackageUsagePermissionGranted(): Boolean
 }
