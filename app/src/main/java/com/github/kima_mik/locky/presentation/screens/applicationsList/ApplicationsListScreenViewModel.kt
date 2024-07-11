@@ -33,13 +33,16 @@ class ApplicationsListScreenViewModel(
         }
     }
     private val showGrantPackageUsageStatsDialog = MutableStateFlow(false)
+    private val showGrantManageOverlayDialog = MutableStateFlow(false)
     val state = combine(
         packages,
-        showGrantPackageUsageStatsDialog
-    ) { packages, showGrantPackageUsageStatsDialog ->
+        showGrantPackageUsageStatsDialog,
+        showGrantManageOverlayDialog
+    ) { packages, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
         ApplicationsListScreenState(
             packages = packages,
-            showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog
+            showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog,
+            showRequireMangeOverlayDialog = showGrantManageOverlayDialog
         )
     }.flowOn(Dispatchers.Default)
 
@@ -48,6 +51,8 @@ class ApplicationsListScreenViewModel(
             is AppListUserEvent.ApplicationToggled -> onApplicationToggled(event.entry)
             AppListUserEvent.ConfirmGrantPackageUsageStatsDialog -> onConfirmGrantPackageUsageStatsDialog()
             AppListUserEvent.DismissGrantPackageUsageStatsDialog -> onDismissGrantPackageUsageStatsDialog()
+            AppListUserEvent.ConfirmGrantManageOverlayDialog -> onConfirmGrantManageOverlayDialog()
+            AppListUserEvent.DismissGrantManageOverlayDialog -> onDismissGrantManageOverlayDialog()
         }
     }
 
@@ -69,5 +74,14 @@ class ApplicationsListScreenViewModel(
 
     private fun onDismissGrantPackageUsageStatsDialog() {
         showGrantPackageUsageStatsDialog.value = false
+    }
+
+    private fun onConfirmGrantManageOverlayDialog() {
+        _outEvents.value = ComposeEvent(AppListUiEvent.RequireMangeOverlay)
+        showGrantManageOverlayDialog.value = false
+    }
+
+    private fun onDismissGrantManageOverlayDialog() {
+        showGrantManageOverlayDialog.value = true
     }
 }

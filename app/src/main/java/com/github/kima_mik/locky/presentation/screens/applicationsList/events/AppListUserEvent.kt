@@ -6,4 +6,6 @@ sealed interface AppListUserEvent {
     data class ApplicationToggled(val entry: AppEntry) : AppListUserEvent
     data object ConfirmGrantPackageUsageStatsDialog:AppListUserEvent
     data object DismissGrantPackageUsageStatsDialog:AppListUserEvent
+    data object ConfirmGrantManageOverlayDialog : AppListUserEvent
+    data object DismissGrantManageOverlayDialog : AppListUserEvent
 }

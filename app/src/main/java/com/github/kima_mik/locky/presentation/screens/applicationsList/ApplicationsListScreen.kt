@@ -66,22 +66,40 @@ fun ApplicationsListScreen(
                         Uri.parse("package:${LocalContext.current.packageName}")
                     )
                 )
+
+            AppListUiEvent.RequireMangeOverlay ->
+                LocalContext.current.startActivity(
+                    Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${LocalContext.current.packageName}")
+                    )
+                )
         }
     }
-
-
 
     when {
         state.showGrantPackageUsageStatsDialog ->
             SimpleAlertDialog(
                 onConfirm = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
                 onDismiss = { onEvent(AppListUserEvent.DismissGrantPackageUsageStatsDialog) },
-                title = stringResource(R.string.grant_package_usage_stats_dialog_title),
+                title = stringResource(R.string.permission_required_dialog_title),
                 text = stringResource(R.string.grant_package_usage_stats_dialog_text),
                 icon = Icons.Default.Warning,
                 confirmText = stringResource(R.string.dialog_proceed_button_text),
                 dismissText = stringResource(R.string.dialog_dismiss_button_text)
             )
+
+        state.showRequireMangeOverlayDialog -> {
+            SimpleAlertDialog(
+                onConfirm = { onEvent(AppListUserEvent.ConfirmGrantManageOverlayDialog) },
+                onDismiss = { onEvent(AppListUserEvent.DismissGrantManageOverlayDialog) },
+                title = stringResource(R.string.permission_required_dialog_title),
+                text = stringResource(R.string.grant_manage_overlay_dialog_text),
+                icon = Icons.Default.Warning,
+                confirmText = stringResource(R.string.dialog_proceed_button_text),
+                dismissText = stringResource(R.string.dialog_dismiss_button_text)
+            )
+        }
     }
 
     Scaffold(modifier = modifier,
