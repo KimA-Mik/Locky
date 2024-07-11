@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import com.github.kima_mik.locky.presentation.ui.ApplicationsListScreen
+import com.github.kima_mik.locky.presentation.ui.ApplicationsScreen
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
             LockyTheme {
                 val windowSizeClass = calculateWindowSizeClass(this)
 
-                ApplicationsListScreen(windowSizeClass = windowSizeClass)
+                ApplicationsScreen(windowSizeClass = windowSizeClass)
             }
         }
     }

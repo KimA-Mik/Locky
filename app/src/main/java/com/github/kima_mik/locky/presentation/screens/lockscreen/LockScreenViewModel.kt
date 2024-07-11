@@ -1,26 +1,55 @@
 package com.github.kima_mik.locky.presentation.screens.lockscreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
+import com.github.kima_mik.locky.domain.code.DEFAULT_CODE_LENGTH
+import com.github.kima_mik.locky.domain.code.useCase.CheckCodeUseCase
+import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
+import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
+import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.elements.keyboard.KeyboardEvent
+import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUiEvent
 import com.github.kima_mik.locky.presentation.screens.lockscreen.event.LockScreenUserEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-class LockScreenViewModel : ViewModel() {
-    private val hideInput = MutableStateFlow(false)
-    private val symbols = MutableStateFlow(List<String?>(4) { null })
+class LockScreenViewModel(
+    appData: GetAppDataUseCase,
+    private val checkCode: CheckCodeUseCase,
+    private val confirmNewCode: ConfirmNewCodeUseCase,
+    private val setNewCode: SetNewCodeUseCase
+) : ViewModel() {
+    private val symbols = MutableStateFlow(EMPTY_CODE)
+    private val flowState = MutableStateFlow(LockScreenFlow.LAUNCH)
+
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            val data = appData().first()
+            if (data.password.isEmpty()) {
+                flowState.value = LockScreenFlow.FIRST_LAUNCH
+            }
+        }
+    }
 
     val state = combine(
-        hideInput,
-        symbols
-    ) { hideInput, symbols ->
+        symbols,
+        flowState
+    ) { symbols, flowState ->
         LockScreenState(
-            hideInput = hideInput,
-            symbols = symbols
+            symbols = symbols,
+            flowState = flowState
         )
     }
 
-    private var cursor = -1
+    private val _uiEvents = MutableStateFlow(ComposeEvent<LockScreenUiEvent>(null))
+    val uiEvents = _uiEvents.asStateFlow()
+
+    private var cursor = 0
 
     fun onEvent(event: LockScreenUserEvent) {
         when (event) {
@@ -30,28 +59,78 @@ class LockScreenViewModel : ViewModel() {
 
     private fun onKeyboardPress(event: KeyboardEvent) {
         when (event) {
-            KeyboardEvent.Backspace -> {
-                if (cursor < 0) {
-                    return
-                }
-                updateSymbols(cursor, null)
-                cursor = (cursor - 1)
+            KeyboardEvent.Backspace -> deleteSymbol()
+            KeyboardEvent.Enter -> handleEnter()
+            is KeyboardEvent.Number -> enterSymbol(event.code.toString())
+        }
+    }
+
+    private fun enterSymbol(symbol: String) {
+        if (cursor == DEFAULT_CODE_LENGTH) {
+            return
+        }
+
+        updateSymbols(cursor, symbol)
+        cursor += 1
+    }
+
+    private fun handleEnter() {
+        when (flowState.value) {
+            LockScreenFlow.FIRST_LAUNCH -> firstLaunchEnter()
+            LockScreenFlow.LAUNCH -> launchEnter()
+            LockScreenFlow.SECOND_PASSWORD_CHECK -> secondPasswordCheckEnter()
+            LockScreenFlow.LOCK -> TODO()
+        }
+    }
+
+    private fun firstLaunchEnter() {
+        when (setNewCode(symbols.value.filterNotNull())) {
+            SetNewCodeUseCase.Result.SUCCESS -> {
+                symbols.value = EMPTY_CODE
+                cursor = 0
+                flowState.value = LockScreenFlow.SECOND_PASSWORD_CHECK
             }
 
-            KeyboardEvent.Enter -> {}
-            is KeyboardEvent.Number -> {
-                if (cursor == symbols.value.size - 1) {
-                    return
-                }
-                cursor += 1
-                updateSymbols(cursor, event.code.toString())
-            }
+            SetNewCodeUseCase.Result.TOO_SHORT -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.ShortCode)
         }
+    }
+
+    private fun launchEnter() = viewModelScope.launch {
+        when (checkCode(symbols.value.filterNotNull())) {
+            CheckCodeUseCase.Result.SUCCESS -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.EnterApp)
+
+            CheckCodeUseCase.Result.WRONG_CODE -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.WrongCode)
+        }
+    }
+
+    private fun secondPasswordCheckEnter() = viewModelScope.launch {
+        when (confirmNewCode(symbols.value.filterNotNull())) {
+            ConfirmNewCodeUseCase.Result.SUCCESS -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.EnterApp)
+
+            ConfirmNewCodeUseCase.Result.CODES_NOT_EQUAL -> _uiEvents.value =
+                ComposeEvent(LockScreenUiEvent.CodesNotEqual)
+        }
+    }
+
+
+    private fun deleteSymbol() {
+        cursor = (cursor - 1).coerceAtLeast(0)
+        if (symbols.value[cursor] == null) return
+
+        updateSymbols(cursor, null)
     }
 
     private fun updateSymbols(index: Int, value: String?) {
         val list = symbols.value.toMutableList()
         list[index] = value
         symbols.value = list
+    }
+
+    companion object {
+        private val EMPTY_CODE = List<String?>(DEFAULT_CODE_LENGTH) { null }
     }
 }

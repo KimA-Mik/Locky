@@ -10,10 +10,12 @@ import com.github.kima_mik.locky.presentation.screens.applicationsList.events.Ap
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.mappers.toAppEntry
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -39,7 +41,7 @@ class ApplicationsListScreenViewModel(
             packages = packages,
             showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog
         )
-    }
+    }.flowOn(Dispatchers.Default)
 
     fun onEvent(event: AppListUserEvent) {
         when (event) {
@@ -53,7 +55,7 @@ class ApplicationsListScreenViewModel(
         if (entry.locked) {
             unlockPackage(entry.packageName)
         } else {
-            val res=lockPackage(entry.packageName)
+            val res = lockPackage(entry.packageName)
             if (res == LockPackageUseCase.Result.NoPermission) {
                 showGrantPackageUsageStatsDialog.value = true
             }
