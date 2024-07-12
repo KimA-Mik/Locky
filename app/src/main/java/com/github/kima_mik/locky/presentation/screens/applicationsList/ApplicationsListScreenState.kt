@@ -5,4 +5,5 @@ import com.github.kima_mik.locky.presentation.screens.applicationsList.model.App
 data class ApplicationsListScreenState(
     val packages: List<AppEntry> = emptyList(),
     val showGrantPackageUsageStatsDialog: Boolean = false,
+    val showRequireMangeOverlayDialog: Boolean = false,
 )

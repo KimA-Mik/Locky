@@ -10,9 +10,9 @@ import com.github.kima_mik.locky.domain.packages.useCase.GetInstalledPackagesUse
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
-import com.github.kima_mik.locky.domain.permissions.PackagePermissionChecker
+import com.github.kima_mik.locky.domain.permissions.PermissionChecker
 import com.github.kima_mik.locky.presentation.android.packages.dataSource.PackageDataSourceImpl
-import com.github.kima_mik.locky.presentation.android.permissions.PackagePermissionCheckerImpl
+import com.github.kima_mik.locky.presentation.android.permissions.PermissionCheckerImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -22,7 +22,13 @@ fun domain() = module {
     single { (androidContext() as LockyApplication).usageStatsManager }
 
     singleOf(::PackageDataSourceImpl) bind PackageDataSource::class
-    singleOf(::PackagePermissionCheckerImpl) bind PackagePermissionChecker::class
+    single {
+        val context = androidContext() as LockyApplication
+        PermissionCheckerImpl(
+            appOpsManager = context.appOpsManager,
+            packageName = context.packageName
+        )
+    } bind PermissionChecker::class
 
     singleOf(::GetAppDataUseCase)
 

@@ -2,21 +2,29 @@ package com.github.kima_mik.locky.domain.packages.useCase
 
 import com.github.kima_mik.locky.domain.applicationData.AppDataRepository
 import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCase
-import com.github.kima_mik.locky.domain.permissions.PackagePermissionChecker
+import com.github.kima_mik.locky.domain.permissions.PermissionChecker
 import kotlinx.coroutines.flow.first
 
 class LockPackageUseCase(
     private val getAppData: GetAppDataUseCase,
     private val repository: AppDataRepository,
-    private val checker: PackagePermissionChecker,
+    private val checker: PermissionChecker,
 ) {
-    private var permissionGranted = false
+    private var dataUsageStats = false
+    private var manageOverlay = false
 
     suspend operator fun invoke(packageName: String): Result {
-        if (!permissionGranted) {
-            permissionGranted = checker.isPackageUsagePermissionGranted()
-            if (!permissionGranted) {
-                return Result.NoPermission
+        if (!dataUsageStats) {
+            dataUsageStats = checker.isPackageUsagePermissionGranted()
+            if (!dataUsageStats) {
+                return Result.NoDataUsageStatsPermission
+            }
+        }
+
+        if (!manageOverlay) {
+            manageOverlay = checker.isManageOverlayPermissionGranted()
+            if (!manageOverlay) {
+                return Result.NoManageOverlayPermission
             }
         }
 
@@ -32,6 +40,7 @@ class LockPackageUseCase(
 
     sealed interface Result {
         data object Success : Result
-        data object NoPermission : Result
+        data object NoDataUsageStatsPermission : Result
+        data object NoManageOverlayPermission : Result
     }
 }

@@ -8,8 +8,9 @@
     <string name="dialog_dismiss_button_text">Dismiss</string>
 
     <!--  AppsListScreen  -->
-    <string name="grant_package_usage_stats_dialog_title">Permission required</string>
-    <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to work.</string>
+    <string name="permission_required_dialog_title">Permission required</string>
+    <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to detect opened apps.</string>
+    <string name="grant_manage_overlay_dialog_text">&appname; needs the manage overlay permission to lock apps.</string>
 
     <!--  LockScreen  -->
     <string name="first_launch_code_header">Let\'s create a pin-code</string>
