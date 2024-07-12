@@ -6,6 +6,7 @@ import android.provider.Settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -104,15 +106,23 @@ fun ApplicationsListScreen(
 
     Scaffold(modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Applications",
-                        style = MaterialTheme.typography.headlineSmall,
+            Column {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "Applications",
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
+                    },
+                    scrollBehavior = sb
+                )
+                if (state.packages is ApplicationsListScreenState.Packages.Loading) {
+                    LinearProgressIndicator(
+                        progress = { state.packages.progress },
+                        modifier = Modifier.fillMaxWidth()
                     )
-                },
-                scrollBehavior = sb
-            )
+                }
+            }
         }) { innerPadding ->
         ApplicationsListScreenContent(
             state = state,
@@ -131,16 +141,18 @@ fun ApplicationsListScreenContent(
     modifier: Modifier = Modifier,
     onEvent: (AppListUserEvent) -> Unit
 ) {
-    if (state.packages.isEmpty()) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(text = "No packages found")
+    if (state.packages is ApplicationsListScreenState.Packages.Entries) {
+        if (state.packages.data.isEmpty()) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(text = "No packages found")
+            }
+        } else {
+            AppsList(
+                entries = state.packages.data,
+                modifier = modifier,
+                onEvent = onEvent
+            )
         }
-    } else {
-        AppsList(
-            entries = state.packages,
-            modifier = modifier,
-            onEvent = onEvent
-        )
     }
 }
 

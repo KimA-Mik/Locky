@@ -11,7 +11,6 @@ import com.github.kima_mik.locky.presentation.screens.applicationsList.events.Ap
 import com.github.kima_mik.locky.presentation.screens.applicationsList.mappers.toAppEntry
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -27,9 +26,16 @@ class ApplicationsListScreenViewModel(
     private val _outEvents = MutableStateFlow(ComposeEvent<AppListUiEvent>(null))
     val uiEvents = _outEvents.asStateFlow()
 
-    private val packages: Flow<List<AppEntry>> = subscribeToPackageEntries().map { packs ->
-        packs.map {
-            it.toAppEntry()
+    private val packages = subscribeToPackageEntries().map { result ->
+        when (result) {
+            is SubscribeToPackageEntriesUseCase.Result.Loading -> ApplicationsListScreenState.Packages.Loading(
+                result.progress
+            )
+
+            is SubscribeToPackageEntriesUseCase.Result.Success -> {
+                val entries = result.data.map { it.toAppEntry() }
+                ApplicationsListScreenState.Packages.Entries(entries)
+            }
         }
     }
     private val showGrantPackageUsageStatsDialog = MutableStateFlow(false)
