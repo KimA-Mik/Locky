@@ -25,7 +25,6 @@ fun domain() = module {
     single {
         val context = androidContext() as LockyApplication
         PermissionCheckerImpl(
-            packageManager = context.packageManager,
             appOpsManager = context.appOpsManager,
             packageName = context.packageName
         )

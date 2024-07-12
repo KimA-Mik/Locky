@@ -10,13 +10,21 @@ class LockPackageUseCase(
     private val repository: AppDataRepository,
     private val checker: PermissionChecker,
 ) {
-    private var permissionGranted = false
+    private var dataUsageStats = false
+    private var manageOverlay = false
 
     suspend operator fun invoke(packageName: String): Result {
-        if (!permissionGranted) {
-            permissionGranted = checker.isPackageUsagePermissionGranted()
-            if (!permissionGranted) {
-                return Result.NoPermission
+        if (!dataUsageStats) {
+            dataUsageStats = checker.isPackageUsagePermissionGranted()
+            if (!dataUsageStats) {
+                return Result.NoDataUsageStatsPermission
+            }
+        }
+
+        if (!manageOverlay) {
+            manageOverlay = checker.isManageOverlayPermissionGranted()
+            if (!manageOverlay) {
+                return Result.NoManageOverlayPermission
             }
         }
 
@@ -32,6 +40,7 @@ class LockPackageUseCase(
 
     sealed interface Result {
         data object Success : Result
-        data object NoPermission : Result
+        data object NoDataUsageStatsPermission : Result
+        data object NoManageOverlayPermission : Result
     }
 }

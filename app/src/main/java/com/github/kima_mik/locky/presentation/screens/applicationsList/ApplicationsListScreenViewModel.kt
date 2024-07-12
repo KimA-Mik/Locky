@@ -60,9 +60,16 @@ class ApplicationsListScreenViewModel(
         if (entry.locked) {
             unlockPackage(entry.packageName)
         } else {
-            val res = lockPackage(entry.packageName)
-            if (res == LockPackageUseCase.Result.NoPermission) {
-                showGrantPackageUsageStatsDialog.value = true
+            when (lockPackage(entry.packageName)) {
+                LockPackageUseCase.Result.NoDataUsageStatsPermission -> {
+                    showGrantPackageUsageStatsDialog.value = true
+                }
+
+                LockPackageUseCase.Result.NoManageOverlayPermission -> {
+                    showGrantManageOverlayDialog.value = true
+                }
+
+                LockPackageUseCase.Result.Success -> {}
             }
         }
     }
