@@ -6,28 +6,25 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.github.kima_mik.locky.domain.common.util.SECOND_MS
 import com.github.kima_mik.locky.domain.packages.dataSource.PackageDataSource
-import com.github.kima_mik.locky.domain.packages.model.PInfo
 import com.github.kima_mik.locky.presentation.android.packages.mappers.toPInfo
 import com.github.kima_mik.locky.presentation.android.packages.util.isSystem
+import kotlinx.coroutines.flow.flow
 
 
 class PackageDataSourceImpl(context: Context, private val usageStatsManager: UsageStatsManager) :
     PackageDataSource {
     private val packageManager: PackageManager = context.packageManager
 
-    override fun getPackages(): List<PInfo> {
-        val res = mutableListOf<PInfo>()
-
+    override fun getPackages() = flow {
         val packs = packageManager.getInstalledPackages(0)
-        for (pack in packs) {
-            if (pack.isSystem()) {
-                continue
-            }
+        val filtered = packs.filter { !it.isSystem() }
 
-            res.add(pack.toPInfo(packageManager))
+        val res = filtered.mapIndexed { index, packageInfo ->
+            emit(PackageDataSource.PackageLoadingState.Loading((index + 1f) / filtered.size))
+            packageInfo.toPInfo(packageManager)
         }
 
-        return res
+        emit(PackageDataSource.PackageLoadingState.Success(res))
     }
 
     override fun getForegroundPackage(): String? {
