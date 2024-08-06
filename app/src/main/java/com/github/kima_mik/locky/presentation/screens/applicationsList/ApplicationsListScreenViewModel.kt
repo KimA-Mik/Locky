@@ -2,7 +2,9 @@ package com.github.kima_mik.locky.presentation.screens.applicationsList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.kima_mik.locky.data.applicationData.AppDataWrapper
+import com.github.kima_mik.locky.domain.lock.LockApplicationsUseCase
+import com.github.kima_mik.locky.domain.lock.SubscribeToLockStatusUseCase
+import com.github.kima_mik.locky.domain.lock.UnlockApplicationsUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
@@ -21,9 +23,11 @@ import kotlinx.coroutines.launch
 
 class ApplicationsListScreenViewModel(
     subscribeToPackageEntries: SubscribeToPackageEntriesUseCase,
-    appData: AppDataWrapper,
+    lockStatus: SubscribeToLockStatusUseCase,
     private val lockPackage: LockPackageUseCase,
-    private val unlockPackage: UnlockPackageUseCase
+    private val unlockPackage: UnlockPackageUseCase,
+    private val lockApplications: LockApplicationsUseCase,
+    private val unlockApplications: UnlockApplicationsUseCase
 ) : ViewModel() {
     private val _outEvents = MutableStateFlow(ComposeEvent<AppListUiEvent>(null))
     val uiEvents = _outEvents.asStateFlow()
@@ -44,15 +48,15 @@ class ApplicationsListScreenViewModel(
     private val showGrantManageOverlayDialog = MutableStateFlow(false)
     val state = combine(
         packages,
-        appData.dtoData,
+        lockStatus(),
         showGrantPackageUsageStatsDialog,
         showGrantManageOverlayDialog
-    ) { packages, appData, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
+    ) { packages, lockStatus, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
         ApplicationsListScreenState(
             packages = packages,
             showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog,
             showRequireMangeOverlayDialog = showGrantManageOverlayDialog,
-            locked = appData.locked
+            locked = lockStatus
         )
     }.flowOn(Dispatchers.Default)
 
@@ -63,8 +67,8 @@ class ApplicationsListScreenViewModel(
             AppListUserEvent.DismissGrantPackageUsageStatsDialog -> onDismissGrantPackageUsageStatsDialog()
             AppListUserEvent.ConfirmGrantManageOverlayDialog -> onConfirmGrantManageOverlayDialog()
             AppListUserEvent.DismissGrantManageOverlayDialog -> onDismissGrantManageOverlayDialog()
-            AppListUserEvent.LockApps -> TODO()
-            AppListUserEvent.UnlockApps -> TODO()
+            AppListUserEvent.LockApps -> onLockApps()
+            AppListUserEvent.UnlockApps -> onUnlockApps()
         }
     }
 
@@ -102,5 +106,13 @@ class ApplicationsListScreenViewModel(
 
     private fun onDismissGrantManageOverlayDialog() {
         showGrantManageOverlayDialog.value = true
+    }
+
+    private fun onLockApps() = viewModelScope.launch {
+        lockApplications()
+    }
+
+    private fun onUnlockApps() = viewModelScope.launch {
+        unlockApplications()
     }
 }

@@ -5,6 +5,9 @@ import com.github.kima_mik.locky.domain.applicationData.useCase.GetAppDataUseCas
 import com.github.kima_mik.locky.domain.code.useCase.CheckCodeUseCase
 import com.github.kima_mik.locky.domain.code.useCase.ConfirmNewCodeUseCase
 import com.github.kima_mik.locky.domain.code.useCase.SetNewCodeUseCase
+import com.github.kima_mik.locky.domain.lock.LockApplicationsUseCase
+import com.github.kima_mik.locky.domain.lock.SubscribeToLockStatusUseCase
+import com.github.kima_mik.locky.domain.lock.UnlockApplicationsUseCase
 import com.github.kima_mik.locky.domain.packages.dataSource.PackageDataSource
 import com.github.kima_mik.locky.domain.packages.useCase.GetInstalledPackagesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
@@ -40,4 +43,8 @@ fun domain() = module {
     singleOf(::CheckCodeUseCase)
     singleOf(::ConfirmNewCodeUseCase)
     singleOf(::SetNewCodeUseCase)
+
+    singleOf(::LockApplicationsUseCase)
+    singleOf(::SubscribeToLockStatusUseCase)
+    singleOf(::UnlockApplicationsUseCase)
 }
