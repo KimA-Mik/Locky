@@ -6,6 +6,7 @@ data class ApplicationsListScreenState(
     val packages: Packages = Packages.Loading(0f),
     val showGrantPackageUsageStatsDialog: Boolean = false,
     val showRequireMangeOverlayDialog: Boolean = false,
+    val locked: Boolean = false,
 ) {
     sealed interface Packages {
         data class Loading(val progress: Float) : Packages

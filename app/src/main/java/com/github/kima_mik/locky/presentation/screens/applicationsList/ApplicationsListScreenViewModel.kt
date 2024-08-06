@@ -2,6 +2,7 @@ package com.github.kima_mik.locky.presentation.screens.applicationsList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.kima_mik.locky.data.applicationData.AppDataWrapper
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 
 class ApplicationsListScreenViewModel(
     subscribeToPackageEntries: SubscribeToPackageEntriesUseCase,
+    appData: AppDataWrapper,
     private val lockPackage: LockPackageUseCase,
     private val unlockPackage: UnlockPackageUseCase
 ) : ViewModel() {
@@ -42,13 +44,15 @@ class ApplicationsListScreenViewModel(
     private val showGrantManageOverlayDialog = MutableStateFlow(false)
     val state = combine(
         packages,
+        appData.dtoData,
         showGrantPackageUsageStatsDialog,
         showGrantManageOverlayDialog
-    ) { packages, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
+    ) { packages, appData, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
         ApplicationsListScreenState(
             packages = packages,
             showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog,
-            showRequireMangeOverlayDialog = showGrantManageOverlayDialog
+            showRequireMangeOverlayDialog = showGrantManageOverlayDialog,
+            locked = appData.locked
         )
     }.flowOn(Dispatchers.Default)
 
@@ -59,6 +63,8 @@ class ApplicationsListScreenViewModel(
             AppListUserEvent.DismissGrantPackageUsageStatsDialog -> onDismissGrantPackageUsageStatsDialog()
             AppListUserEvent.ConfirmGrantManageOverlayDialog -> onConfirmGrantManageOverlayDialog()
             AppListUserEvent.DismissGrantManageOverlayDialog -> onDismissGrantManageOverlayDialog()
+            AppListUserEvent.LockApps -> TODO()
+            AppListUserEvent.UnlockApps -> TODO()
         }
     }
 

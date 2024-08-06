@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
@@ -44,6 +46,8 @@ import com.github.kima_mik.locky.presentation.elements.SimpleAlertDialog
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUiEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.model.AppEntry
+import com.github.kima_mik.locky.presentation.ui.components.SimpleDropDownMenuItem
+import com.github.kima_mik.locky.presentation.ui.components.SimpleDropdownMenu
 import com.github.kima_mik.locky.presentation.ui.theme.LockyTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -114,6 +118,14 @@ fun ApplicationsListScreen(
                             style = MaterialTheme.typography.headlineSmall,
                         )
                     },
+                    actions = {
+                        SimpleDropdownMenu(
+                            menuItems = dropdownMenuItems(
+                                locked = state.locked,
+                                onEvent = onEvent
+                            )
+                        )
+                    },
                     scrollBehavior = sb
                 )
                 if (state.packages is ApplicationsListScreenState.Packages.Loading) {
@@ -133,6 +145,30 @@ fun ApplicationsListScreen(
             onEvent = onEvent
         )
     }
+}
+
+@Composable
+private fun dropdownMenuItems(
+    locked: Boolean,
+    onEvent: (AppListUserEvent) -> Unit
+) = remember(locked) {
+    val checkbox = if (locked) {
+        SimpleDropDownMenuItem(
+            textId = R.string.unlock_apps_action,
+            onClick = { onEvent(AppListUserEvent.UnlockApps) },
+            leadingIcon = Icons.Default.LockOpen
+        )
+    } else {
+        SimpleDropDownMenuItem(
+            textId = R.string.lock_apps_action,
+            onClick = { onEvent(AppListUserEvent.LockApps) },
+            leadingIcon = Icons.Default.Lock
+        )
+    }
+
+    listOf(
+        checkbox
+    )
 }
 
 @Composable
@@ -228,7 +264,7 @@ private fun ApplicationEntryPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun ContentPreview() {
     LockyTheme {
         ApplicationsListScreenContent(
             state = ApplicationsListScreenState(),
