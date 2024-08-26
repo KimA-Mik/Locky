@@ -84,7 +84,7 @@ fun ApplicationsListScreen(
     }
 
     when {
-        state.showGrantPackageUsageStatsDialog ->
+        state.dialogs.showRequirePackageUsageStatsDialog ->
             SimpleAlertDialog(
                 onConfirm = { onEvent(AppListUserEvent.ConfirmGrantPackageUsageStatsDialog) },
                 onDismiss = { onEvent(AppListUserEvent.DismissGrantPackageUsageStatsDialog) },
@@ -95,7 +95,7 @@ fun ApplicationsListScreen(
                 dismissText = stringResource(R.string.dialog_dismiss_button_text)
             )
 
-        state.showRequireMangeOverlayDialog -> {
+        state.dialogs.showRequireMangeOverlayDialog -> {
             SimpleAlertDialog(
                 onConfirm = { onEvent(AppListUserEvent.ConfirmGrantManageOverlayDialog) },
                 onDismiss = { onEvent(AppListUserEvent.DismissGrantManageOverlayDialog) },

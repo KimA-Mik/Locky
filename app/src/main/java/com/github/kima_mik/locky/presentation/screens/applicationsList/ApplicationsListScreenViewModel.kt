@@ -45,8 +45,9 @@ class ApplicationsListScreenViewModel(
             }
         }
     }
-    private val showGrantPackageUsageStatsDialog = MutableStateFlow(false)
-    private val showGrantManageOverlayDialog = MutableStateFlow(false)
+    private val showRequirePackageUsageStatsDialog = MutableStateFlow(false)
+    private val showRequireManageOverlayDialog = MutableStateFlow(false)
+    private val showRequireNotificationPermissionDialog = MutableStateFlow(false)
     private val locked = lockStatus().onEach {
         when (it) {
             SubscribeToLockStatusUseCase.Result.ShouldRun -> lockApplications()
@@ -62,16 +63,28 @@ class ApplicationsListScreenViewModel(
         }
     }
 
+    private val dialogs = combine(
+        showRequirePackageUsageStatsDialog,
+        showRequireManageOverlayDialog,
+        showRequireNotificationPermissionDialog
+    ) { showRequirePackageUsageStatsDialog,
+        showRequireManageOverlayDialog,
+        showRequireNotificationPermissionDialog ->
+        ApplicationsListScreenState.Dialogs(
+            showRequirePackageUsageStatsDialog = showRequirePackageUsageStatsDialog,
+            showRequireMangeOverlayDialog = showRequireManageOverlayDialog,
+            showRequireNotificationPermissionDialog = showRequireNotificationPermissionDialog
+        )
+    }
+
     val state = combine(
         packages,
+        dialogs,
         locked,
-        showGrantPackageUsageStatsDialog,
-        showGrantManageOverlayDialog
-    ) { packages, locked, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
+    ) { packages, dialogs, locked ->
         ApplicationsListScreenState(
             packages = packages,
-            showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog,
-            showRequireMangeOverlayDialog = showGrantManageOverlayDialog,
+            dialogs = dialogs,
             locked = locked
         )
     }.flowOn(Dispatchers.Default)
@@ -94,11 +107,11 @@ class ApplicationsListScreenViewModel(
         } else {
             when (lockPackage(entry.packageName)) {
                 LockPackageUseCase.Result.NoDataUsageStatsPermission -> {
-                    showGrantPackageUsageStatsDialog.value = true
+                    showRequirePackageUsageStatsDialog.value = true
                 }
 
                 LockPackageUseCase.Result.NoManageOverlayPermission -> {
-                    showGrantManageOverlayDialog.value = true
+                    showRequireManageOverlayDialog.value = true
                 }
 
                 LockPackageUseCase.Result.Success -> {}
@@ -108,20 +121,20 @@ class ApplicationsListScreenViewModel(
 
     private fun onConfirmGrantPackageUsageStatsDialog() {
         _outEvents.value = ComposeEvent(AppListUiEvent.RequirePackageUsageStats)
-        showGrantPackageUsageStatsDialog.value = false
+        showRequirePackageUsageStatsDialog.value = false
     }
 
     private fun onDismissGrantPackageUsageStatsDialog() {
-        showGrantPackageUsageStatsDialog.value = false
+        showRequirePackageUsageStatsDialog.value = false
     }
 
     private fun onConfirmGrantManageOverlayDialog() {
         _outEvents.value = ComposeEvent(AppListUiEvent.RequireMangeOverlay)
-        showGrantManageOverlayDialog.value = false
+        showRequireManageOverlayDialog.value = false
     }
 
     private fun onDismissGrantManageOverlayDialog() {
-        showGrantManageOverlayDialog.value = true
+        showRequireManageOverlayDialog.value = true
     }
 
     private fun onLockApps() = viewModelScope.launch {
