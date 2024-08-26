@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.github.kima_mik.locky.LockyApplication
 import com.github.kima_mik.locky.R
+import com.github.kima_mik.locky.domain.common.util.MINUTE_MS
 import com.github.kima_mik.locky.domain.packages.dataSource.PackageDataSource
 import com.github.kima_mik.locky.presentation.android.dataStore.appData.appDataStore
 import kotlinx.coroutines.CoroutineScope
@@ -153,7 +154,7 @@ class LockService : Service(), KoinComponent {
         private const val DELAY_TIME = 250L
 
         //TODO: expose to settings
-        private const val LOCK_TIMEOUT = 5 * 1000L
-        private const val LOCK_TIMEOUT_INTERVAL = 1000L
+        private const val LOCK_TIMEOUT = 5 * MINUTE_MS
+        private const val LOCK_TIMEOUT_INTERVAL = MINUTE_MS
     }
 }
