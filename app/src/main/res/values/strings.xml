@@ -24,4 +24,9 @@
     <!-- Lock actions   -->
     <string name="lock_apps_action">Lock applications</string>
     <string name="unlock_apps_action">Unlock applications</string>
+
+    <!--  LockService  -->
+    <string name="lock_status_notification_chanel_title">Lock status</string>
+    <string name="lock_status_notification_chanel_description">Notify when the lock is active</string>
+    <string name="lock_service_notification_title">The apps are locked</string>
 </resources>
