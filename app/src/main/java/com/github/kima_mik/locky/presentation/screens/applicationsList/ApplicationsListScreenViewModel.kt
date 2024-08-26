@@ -2,9 +2,9 @@ package com.github.kima_mik.locky.presentation.screens.applicationsList
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.kima_mik.locky.domain.lock.LockApplicationsUseCase
-import com.github.kima_mik.locky.domain.lock.SubscribeToLockStatusUseCase
-import com.github.kima_mik.locky.domain.lock.UnlockApplicationsUseCase
+import com.github.kima_mik.locky.domain.lock.useCase.LockApplicationsUseCase
+import com.github.kima_mik.locky.domain.lock.useCase.SubscribeToLockStatusUseCase
+import com.github.kima_mik.locky.domain.lock.useCase.UnlockApplicationsUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class ApplicationsListScreenViewModel(
@@ -46,17 +47,32 @@ class ApplicationsListScreenViewModel(
     }
     private val showGrantPackageUsageStatsDialog = MutableStateFlow(false)
     private val showGrantManageOverlayDialog = MutableStateFlow(false)
+    private val locked = lockStatus().onEach {
+        when (it) {
+            SubscribeToLockStatusUseCase.Result.ShouldRun -> lockApplications()
+            SubscribeToLockStatusUseCase.Result.ShouldStop -> unlockApplications()
+            else -> Unit
+        }
+    }.map {
+        when (it) {
+            SubscribeToLockStatusUseCase.Result.Running -> true
+            SubscribeToLockStatusUseCase.Result.ShouldRun -> true
+            SubscribeToLockStatusUseCase.Result.ShouldStop -> false
+            SubscribeToLockStatusUseCase.Result.Stopped -> false
+        }
+    }
+
     val state = combine(
         packages,
-        lockStatus(),
+        locked,
         showGrantPackageUsageStatsDialog,
         showGrantManageOverlayDialog
-    ) { packages, lockStatus, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
+    ) { packages, locked, showGrantPackageUsageStatsDialog, showGrantManageOverlayDialog ->
         ApplicationsListScreenState(
             packages = packages,
             showGrantPackageUsageStatsDialog = showGrantPackageUsageStatsDialog,
             showRequireMangeOverlayDialog = showGrantManageOverlayDialog,
-            locked = lockStatus
+            locked = locked
         )
     }.flowOn(Dispatchers.Default)
 

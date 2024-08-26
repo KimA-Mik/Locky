@@ -3,12 +3,14 @@ package com.github.kima_mik.locky.presentation.android.service.lockService
 import android.app.ForegroundServiceStartNotAllowedException
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import com.github.kima_mik.locky.LockyApplication
 import com.github.kima_mik.locky.R
 import com.github.kima_mik.locky.domain.packages.dataSource.PackageDataSource
 import com.github.kima_mik.locky.presentation.android.dataStore.appData.appDataStore
@@ -63,13 +65,32 @@ class LockService : Service(), KoinComponent {
 
     private fun runForeground(): Boolean {
         try {
-
-            val notification = NotificationCompat.Builder(this, "CHANNEL_ID")
-                //.setContentTitle()
+            val notification = NotificationCompat.Builder(
+                this,
+                LockyApplication.LOCK_STATUS_NOTIFICATION_CHANNEL_ID
+            )
+                .setContentTitle(getText(R.string.lock_service_notification_title))
                 .setSmallIcon(R.drawable.lock_24)
                 .build()
 
-            ServiceCompat.startForeground(this, 100, notification, 0)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                ServiceCompat.startForeground(
+                    this,
+                    100,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ServiceCompat.startForeground(
+                    this,
+                    100,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE
+                )
+            } else {
+                startForeground(100, notification)
+            }
+
             return true
         } catch (e: Exception) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

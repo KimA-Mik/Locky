@@ -42,7 +42,7 @@ class LockyApplication : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.lock_status_notification_chanel_title)
             val descriptionText = getString(R.string.lock_status_notification_chanel_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
             val mChannel =
                 NotificationChannel(LOCK_STATUS_NOTIFICATION_CHANNEL_ID, name, importance)
             mChannel.description = descriptionText
