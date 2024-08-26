@@ -14,6 +14,7 @@ import com.github.kima_mik.locky.domain.packages.useCase.GetInstalledPackagesUse
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
+import com.github.kima_mik.locky.domain.permissions.CheckPermissionUseCase
 import com.github.kima_mik.locky.domain.permissions.PermissionChecker
 import com.github.kima_mik.locky.presentation.android.packages.dataSource.PackageDataSourceImpl
 import com.github.kima_mik.locky.presentation.android.permissions.PermissionCheckerImpl
@@ -30,6 +31,7 @@ fun domain() = module {
     single {
         val context = androidContext() as LockyApplication
         PermissionCheckerImpl(
+            context = context,
             appOpsManager = context.appOpsManager,
             packageName = context.packageName
         )
@@ -51,4 +53,6 @@ fun domain() = module {
     singleOf(::LockApplicationsUseCase)
     singleOf(::SubscribeToLockStatusUseCase)
     singleOf(::UnlockApplicationsUseCase)
+
+    singleOf(::CheckPermissionUseCase)
 }

@@ -15,6 +15,5 @@ data class ApplicationsListScreenState(
     data class Dialogs(
         val showRequirePackageUsageStatsDialog: Boolean = false,
         val showRequireMangeOverlayDialog: Boolean = false,
-        val showRequireNotificationPermissionDialog: Boolean = false
     )
 }

@@ -61,6 +61,7 @@ fun NavGraphBuilder.mainGraph(
             ApplicationsListScreen(
                 state = state,
                 uiEvents = uiEvents,
+                snackbarHostState = snackbarHostState,
                 onEvent = onEvent
             )
         }

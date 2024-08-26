@@ -11,6 +11,7 @@
     <string name="permission_required_dialog_title">Permission required</string>
     <string name="grant_package_usage_stats_dialog_text">&appname; needs the usage stats permission to detect opened apps.</string>
     <string name="grant_manage_overlay_dialog_text">&appname; needs the manage overlay permission to lock apps.</string>
+    <string name="no_notification_permission_granted_snackbar_message">You won\'t see any notifications.</string>
 
     <!--  LockScreen  -->
     <string name="first_launch_code_header">Let\'s create a pin-code</string>

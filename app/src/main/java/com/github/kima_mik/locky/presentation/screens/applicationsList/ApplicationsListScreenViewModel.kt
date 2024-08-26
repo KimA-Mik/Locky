@@ -1,13 +1,17 @@
 package com.github.kima_mik.locky.presentation.screens.applicationsList
 
+import android.Manifest
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.kima_mik.locky.R
 import com.github.kima_mik.locky.domain.lock.useCase.LockApplicationsUseCase
 import com.github.kima_mik.locky.domain.lock.useCase.SubscribeToLockStatusUseCase
 import com.github.kima_mik.locky.domain.lock.useCase.UnlockApplicationsUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.LockPackageUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.SubscribeToPackageEntriesUseCase
 import com.github.kima_mik.locky.domain.packages.useCase.UnlockPackageUseCase
+import com.github.kima_mik.locky.domain.permissions.CheckPermissionUseCase
 import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUiEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
@@ -28,7 +32,8 @@ class ApplicationsListScreenViewModel(
     private val lockPackage: LockPackageUseCase,
     private val unlockPackage: UnlockPackageUseCase,
     private val lockApplications: LockApplicationsUseCase,
-    private val unlockApplications: UnlockApplicationsUseCase
+    private val unlockApplications: UnlockApplicationsUseCase,
+    private val checkPermission: CheckPermissionUseCase
 ) : ViewModel() {
     private val _outEvents = MutableStateFlow(ComposeEvent<AppListUiEvent>(null))
     val uiEvents = _outEvents.asStateFlow()
@@ -47,7 +52,6 @@ class ApplicationsListScreenViewModel(
     }
     private val showRequirePackageUsageStatsDialog = MutableStateFlow(false)
     private val showRequireManageOverlayDialog = MutableStateFlow(false)
-    private val showRequireNotificationPermissionDialog = MutableStateFlow(false)
     private val locked = lockStatus().onEach {
         when (it) {
             SubscribeToLockStatusUseCase.Result.ShouldRun -> lockApplications()
@@ -66,14 +70,11 @@ class ApplicationsListScreenViewModel(
     private val dialogs = combine(
         showRequirePackageUsageStatsDialog,
         showRequireManageOverlayDialog,
-        showRequireNotificationPermissionDialog
     ) { showRequirePackageUsageStatsDialog,
-        showRequireManageOverlayDialog,
-        showRequireNotificationPermissionDialog ->
+        showRequireManageOverlayDialog ->
         ApplicationsListScreenState.Dialogs(
             showRequirePackageUsageStatsDialog = showRequirePackageUsageStatsDialog,
             showRequireMangeOverlayDialog = showRequireManageOverlayDialog,
-            showRequireNotificationPermissionDialog = showRequireNotificationPermissionDialog
         )
     }
 
@@ -96,6 +97,8 @@ class ApplicationsListScreenViewModel(
             AppListUserEvent.DismissGrantPackageUsageStatsDialog -> onDismissGrantPackageUsageStatsDialog()
             AppListUserEvent.ConfirmGrantManageOverlayDialog -> onConfirmGrantManageOverlayDialog()
             AppListUserEvent.DismissGrantManageOverlayDialog -> onDismissGrantManageOverlayDialog()
+            AppListUserEvent.NotificationPermissionGranted -> onNotificationPermissionGranted()
+            AppListUserEvent.NotificationPermissionDenied -> onNotificationPermissionDenied()
             AppListUserEvent.LockApps -> onLockApps()
             AppListUserEvent.UnlockApps -> onUnlockApps()
         }
@@ -137,7 +140,24 @@ class ApplicationsListScreenViewModel(
         showRequireManageOverlayDialog.value = true
     }
 
+    private fun onNotificationPermissionGranted() = viewModelScope.launch {
+        lockApplications()
+    }
+
+    private fun onNotificationPermissionDenied() = viewModelScope.launch {
+        _outEvents.value =
+            ComposeEvent(AppListUiEvent.ShowSnackBar(R.string.no_notification_permission_granted_snackbar_message))
+        lockApplications()
+    }
+
     private fun onLockApps() = viewModelScope.launch {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!checkPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+                _outEvents.value =
+                    ComposeEvent(AppListUiEvent.RequireNotificationPermission)
+                return@launch
+            }
+        }
         lockApplications()
     }
 

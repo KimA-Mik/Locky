@@ -1,8 +1,12 @@
 package com.github.kima_mik.locky.presentation.screens.applicationsList
 
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +26,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -29,9 +35,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -42,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.github.kima_mik.locky.R
 import com.github.kima_mik.locky.presentation.common.ComposeEvent
 import com.github.kima_mik.locky.presentation.common.ImmutableImageBitmap
+import com.github.kima_mik.locky.presentation.common.SnackbarMessage
 import com.github.kima_mik.locky.presentation.elements.SimpleAlertDialog
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUiEvent
 import com.github.kima_mik.locky.presentation.screens.applicationsList.events.AppListUserEvent
@@ -56,11 +66,28 @@ fun ApplicationsListScreen(
     state: ApplicationsListScreenState,
     modifier: Modifier = Modifier,
     uiEvents: State<ComposeEvent<AppListUiEvent>>,
+    snackbarHostState: SnackbarHostState,
     onEvent: (AppListUserEvent) -> Unit
 ) {
     val scrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val sb = remember { scrollBehavior }
+
+    val requestNotificationPermissionLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                onEvent(AppListUserEvent.NotificationPermissionGranted)
+            } else {
+                onEvent(AppListUserEvent.NotificationPermissionDenied)
+            }
+        }
+
+    var snackbarMessage by remember { mutableStateOf<SnackbarMessage?>(null) }
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let {
+            snackbarHostState.showSnackbar(it.text)
+        }
+    }
 
     val uiEvent by uiEvents
     uiEvent.consume {
@@ -80,6 +107,16 @@ fun ApplicationsListScreen(
                         Uri.parse("package:${LocalContext.current.packageName}")
                     )
                 )
+
+            AppListUiEvent.RequireNotificationPermission -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+
+            is AppListUiEvent.ShowSnackBar -> {
+                snackbarMessage = SnackbarMessage(text = stringResource(id = it.message))
+            }
         }
     }
 
@@ -135,7 +172,8 @@ fun ApplicationsListScreen(
                     )
                 }
             }
-        }) { innerPadding ->
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
         ApplicationsListScreenContent(
             state = state,
             modifier = Modifier

@@ -8,6 +8,8 @@ sealed interface AppListUserEvent {
     data object DismissGrantPackageUsageStatsDialog:AppListUserEvent
     data object ConfirmGrantManageOverlayDialog : AppListUserEvent
     data object DismissGrantManageOverlayDialog : AppListUserEvent
+    data object NotificationPermissionGranted : AppListUserEvent
+    data object NotificationPermissionDenied : AppListUserEvent
     data object LockApps : AppListUserEvent
     data object UnlockApps : AppListUserEvent
 }

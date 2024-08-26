@@ -3,4 +3,5 @@ package com.github.kima_mik.locky.domain.permissions
 interface PermissionChecker {
     fun isPackageUsagePermissionGranted(): Boolean
     fun isManageOverlayPermissionGranted(): Boolean
+    fun checkDefaultPermission(permission: String): Boolean
 }
